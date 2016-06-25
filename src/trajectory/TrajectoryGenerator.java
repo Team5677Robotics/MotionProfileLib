@@ -25,7 +25,7 @@ public class TrajectoryGenerator{
      * @return      the minimum between adjustedMaxV and maxV
      *
      */
-    private double calcAdjustedMaxV(double initialV, double endingV, double totalDistance){
+    public double calcAdjustedMaxV(double initialV, double endingV, double totalDistance){
         double startDistanceOffset = (0.5*initialV*initialV)/this.maxA;
         double endDistanceOffset = (0.5*endingV*endingV)/this.maxA;
         double adjustedMaxV = Math.sqrt(this.maxA*totalDistance-startDistanceOffset-endDistanceOffset);

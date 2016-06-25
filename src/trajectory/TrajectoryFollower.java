@@ -10,28 +10,26 @@ public class TrajectoryFollower{
     double kV, kA, kP, kI, kD, dt;
     double prevError = 0.0;
     double sumError = 0.0;
-    public TrajectoryFollower(){
-
-    }
-
-    public void setTrajectory(Segment[] trajectory){
-        this.trajectory = trajectory;
-        this.step = 0;
-    }
+    boolean isDone = false;
     
-    public void setConstants(double kV, double kA, double kP, double kI, double kD, double dt){
+    public TrajectoryFollower(Segment [] trajectory, double kV, double kA, double kP, double kI, double kD, double dt){
         this.kV = kV;
         this.kA = kA;
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
         this.dt = dt;
+        this.trajectory = trajectory;
+        this.step = 0;
     }
 
-    public double getFeedForward(double velocity, double acceleration){
+    public double getFeedForward(double velocity, double acceleration){ 
         return (kV*velocity)+(kA*acceleration);
     }
-
+    
+    public boolean isTrajDone(){
+        return this.isDone;
+    }
     public double getFeedBack(double setpointPosition, double actualPosition){
         double error = setpointPosition-actualPosition;
         this.sumError += error;
@@ -44,12 +42,19 @@ public class TrajectoryFollower{
         try{
             if(step==-1){
                 throw new TrajectoryException("No Trajectory added");
+            }else if(step==trajectory.length){
+                this.isDone = true;
+                return 0.0;
             }else{
                 Segment s = this.trajectory[step];
                 double velocity = s.getVelocity();
                 double acceleration = s.getAcceleration();
                 double position = s.getPosition();
-                return getFeedForward(velocity, acceleration)+getFeedBack(position, currPosition);
+                step++;
+                double feedforward = getFeedForward(velocity, acceleration);
+                double feedback = getFeedBack(position, currPosition);
+                //System.out.println("Feedforward: "+feedforward+"///// Feedback"+feedback+"\n");
+                return feedforward+feedback;
             }
         }catch(TrajectoryException e){
             System.out.println(e.getMessage());
